@@ -1,0 +1,9 @@
+# Visual Studio and .NET build output
+.vs/
+bin/
+obj/
+*.user
+
+# Data generated while running the console app
+tasks.json
+tasks.json.tmp
