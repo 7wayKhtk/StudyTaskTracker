@@ -7,3 +7,5 @@ obj/
 # Data generated while running the console app
 tasks.json
 tasks.json.tmp
+tasks-oop.json
+tasks-oop.json.tmp
