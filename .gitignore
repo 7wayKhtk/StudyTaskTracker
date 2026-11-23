@@ -9,3 +9,5 @@ tasks.json
 tasks.json.tmp
 tasks-oop.json
 tasks-oop.json.tmp
+tasks-layered.json
+tasks-layered.json.tmp
