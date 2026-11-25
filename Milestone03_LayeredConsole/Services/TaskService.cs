@@ -3,35 +3,25 @@ using StudyTaskTracker.Layered.Models;
 
 namespace StudyTaskTracker.Layered.Services;
 
-internal sealed class TaskService
+internal sealed class TaskService(ITaskRepository repository, AccountService accounts)
 {
-    private readonly JsonTaskRepository repository;
-    private readonly List<StudyTask> tasks;
-
-    public TaskService(JsonTaskRepository repository)
-    {
-        this.repository = repository;
-        tasks = repository.Load();
-    }
-
     public void Add(string title, string course, DateOnly dueDate)
     {
+        int ownerId = RequireOwnerId();
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         ArgumentException.ThrowIfNullOrWhiteSpace(course);
 
-        int id = tasks.Count == 0 ? 1 : tasks.Max(task => task.Id) + 1;
-        tasks.Add(new StudyTask(id, title.Trim(), course.Trim(), dueDate));
-        repository.Save(tasks);
+        repository.Add(new StudyTask(0, title.Trim(), course.Trim(), dueDate, ownerId: ownerId));
     }
 
     public IReadOnlyList<StudyTask> List()
     {
-        return tasks.AsReadOnly();
+        return repository.ListForOwner(RequireOwnerId());
     }
 
     public StudyTask? Find(int id)
     {
-        return tasks.Find(task => task.Id == id);
+        return repository.FindForOwner(RequireOwnerId(), id);
     }
 
     public bool Delete(int id)
@@ -42,8 +32,7 @@ internal sealed class TaskService
             return false;
         }
 
-        tasks.Remove(task);
-        repository.Save(tasks);
+        repository.Delete(task);
         return true;
     }
 
@@ -56,7 +45,24 @@ internal sealed class TaskService
         }
 
         task.MarkComplete();
-        repository.Save(tasks);
+        repository.SaveChanges();
         return true;
+    }
+
+    public bool CanImportLegacyTasks => accounts.CurrentUser?.Id == 1;
+
+    public int ImportLegacyTasks()
+    {
+        if (!CanImportLegacyTasks)
+        {
+            throw new InvalidOperationException("The first registered account can import earlier tasks.");
+        }
+
+        return repository.ClaimUnownedTasks(RequireOwnerId());
+    }
+
+    private int RequireOwnerId()
+    {
+        return accounts.CurrentUser?.Id ?? throw new InvalidOperationException("Sign in to manage tasks.");
     }
 }

@@ -65,7 +65,7 @@ Solution Explorer, and select **Set as Startup Project**. Press **Ctrl+F5** to r
 2. Choose option 5 and enter the task ID to mark it **Completed**.
 3. Exit, rerun, and find the task by ID to verify the completion status was saved.
 
-## Milestone 03 · Layered console
+## Milestone 03 · Layered multi-user console
 
 ### Session 1 · Separate the layers
 
@@ -83,10 +83,25 @@ For example, when you choose Add, the menu reads your answers and passes them to
 the service. The service creates a `StudyTask` and asks the repository to save it.
 The menu shows the success message after the save returns.
 
-This session retains Add, List, Find, Delete, and Mark Complete. It uses
-`tasks-layered.json` for its own data. To try previous tasks, copy the contents of
-your Milestone 02 `tasks-oop.json` to a new `tasks-layered.json` file in the
-directory where you launch Milestone 03.
+This session retained Add, List, Find, Delete, and Mark Complete and introduced
+`tasks-layered.json` as the storage file for this milestone.
+
+### Session 2 · Add users and ownership
+
+`AccountService` handles registration, login, logout, and the current user.
+Usernames are unique regardless of capitalization. Registration validates the
+username and password. The user repository saves accounts to
+`users-layered.json` with a salted PBKDF2 password hash.
+
+Each new task stores the signed-in user's ID in `OwnerId`. `TaskService` requires
+a current user, and the task repository filters reads by that owner. Find,
+Delete, and Mark Complete all use the same owner-filtered lookup.
+
+Tasks saved before accounts have no owner. The first registered account can
+choose **Import tasks from before accounts** and confirm to assign those tasks
+to itself. If you're bringing over tasks from Milestone 02 on a fresh setup,
+copy `tasks-oop.json` to `tasks-layered.json` before launching and use the same
+import option.
 
 ### Run it
 
@@ -99,10 +114,12 @@ dotnet run
 ```
 
 In Visual Studio, right-click `Milestone03_LayeredConsole` in Solution Explorer,
-select **Set as Startup Project**, and press **Ctrl+F5**. Add a task, mark it
-complete, and restart the app to check that its status was saved.
+select **Set as Startup Project**, and press **Ctrl+F5**. The app prints its data
+paths, which depend on the working directory.
 
-### Session 2 · Add users and ownership
+### Try it
 
-Planned work includes registration, login, logout, and restricting each account
-to its own tasks.
+1. Register and log in as `alice`. Add a task and note its ID.
+2. Log out, register and log in as `bob`, and list tasks. Try finding, deleting,
+   and completing Alice's task by ID. Bob should get “No task found.”
+3. Restart, sign in again as Alice, and find her task by ID.

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 using StudyTaskTracker.Layered.Models;
 using StudyTaskTracker.Layered.Services;
 
@@ -8,25 +9,41 @@ internal sealed class ConsoleMenu
 {
     private const string DateFormat = "yyyy-MM-dd";
     private readonly TaskService taskService;
+    private readonly AccountService accounts;
 
-    public ConsoleMenu(TaskService taskService)
+    public ConsoleMenu(TaskService taskService, AccountService accounts)
     {
         this.taskService = taskService;
+        this.accounts = accounts;
     }
 
-    public void Run(string filePath)
+    public void Run()
     {
-        Console.WriteLine("Study Task Tracker");
-        Console.WriteLine($"Data file: {filePath}");
-
         while (true)
         {
             Console.WriteLine();
+            if (accounts.CurrentUser is null)
+            {
+                if (!ShowAccountMenu())
+                {
+                    return;
+                }
+
+                continue;
+            }
+
+            Console.WriteLine($"Signed in as {accounts.CurrentUser.Username}");
             Console.WriteLine("1. Add a task");
             Console.WriteLine("2. List tasks");
             Console.WriteLine("3. Find a task");
             Console.WriteLine("4. Delete a task");
             Console.WriteLine("5. Mark a task complete");
+            Console.WriteLine("6. Log out");
+            if (taskService.CanImportLegacyTasks)
+            {
+                Console.WriteLine("7. Import tasks from before accounts");
+            }
+
             Console.WriteLine("0. Exit");
             Console.Write("Choose an option: ");
 
@@ -52,15 +69,99 @@ internal sealed class ConsoleMenu
                     CompleteTask();
                     break;
 
+                case "6":
+                    accounts.Logout();
+                    Console.WriteLine("Logged out.");
+                    break;
+
+                case "7" when taskService.CanImportLegacyTasks:
+                    ImportLegacyTasks();
+                    break;
+
                 case "0":
                 case null:
                     return;
 
                 default:
-                    Console.WriteLine("Choose a number from 0 to 5.");
+                    Console.WriteLine("Choose one of the menu options.");
                     break;
             }
         }
+    }
+
+    private bool ShowAccountMenu()
+    {
+        Console.WriteLine("1. Register");
+        Console.WriteLine("2. Log in");
+        Console.WriteLine("0. Exit");
+        Console.Write("Choose an option: ");
+
+        switch (Console.ReadLine()?.Trim())
+        {
+            case "1":
+                Console.Write("Username: ");
+                string? newUsername = Console.ReadLine();
+                string? error = accounts.Register(newUsername, ReadPassword());
+                Console.WriteLine(error ?? "Account created. You can now log in.");
+                return true;
+
+            case "2":
+                Console.Write("Username: ");
+                string? username = Console.ReadLine();
+                Console.WriteLine(accounts.Login(username, ReadPassword())
+                    ? "Logged in."
+                    : "Invalid username or password.");
+                return true;
+
+            case "0":
+            case null:
+                return false;
+
+            default:
+                Console.WriteLine("Choose one of the menu options.");
+                return true;
+        }
+    }
+
+    private static string? ReadPassword()
+    {
+        Console.Write("Password: ");
+        if (Console.IsInputRedirected)
+        {
+            return Console.ReadLine();
+        }
+
+        var password = new StringBuilder();
+        while (true)
+        {
+            ConsoleKeyInfo key = Console.ReadKey(intercept: true);
+            if (key.Key == ConsoleKey.Enter)
+            {
+                Console.WriteLine();
+                return password.ToString();
+            }
+
+            if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+            {
+                password.Length--;
+            }
+            else if (!char.IsControl(key.KeyChar))
+            {
+                password.Append(key.KeyChar);
+            }
+        }
+    }
+
+    private void ImportLegacyTasks()
+    {
+        Console.Write("Assign all tasks created before accounts to this account? (y/N): ");
+        if (!string.Equals(Console.ReadLine()?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        int imported = taskService.ImportLegacyTasks();
+        Console.WriteLine(imported == 0 ? "No earlier tasks to import." : $"Imported tasks: {imported}");
     }
 
     private void AddTask()

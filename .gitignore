@@ -11,3 +11,6 @@ tasks-oop.json
 tasks-oop.json.tmp
 tasks-layered.json
 tasks-layered.json.tmp
+tasks-layered.json.lock
+users-layered.json
+users-layered.json.tmp

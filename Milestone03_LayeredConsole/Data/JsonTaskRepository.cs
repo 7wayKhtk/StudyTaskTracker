@@ -1,47 +1,60 @@
-using System.Text.Json;
 using StudyTaskTracker.Layered.Models;
 
 namespace StudyTaskTracker.Layered.Data;
 
-internal sealed class JsonTaskRepository
+internal sealed class JsonTaskRepository : ITaskRepository
 {
-    private readonly string filePath;
-    private readonly JsonSerializerOptions jsonOptions = new()
-    {
-        WriteIndented = true,
-        RespectNullableAnnotations = true,
-        RespectRequiredConstructorParameters = true
-    };
+    private readonly JsonFile<StudyTask> file;
+    private readonly List<StudyTask> tasks;
 
     public JsonTaskRepository(string filePath)
     {
-        this.filePath = filePath;
+        file = new JsonFile<StudyTask>(filePath);
+        tasks = file.Load();
     }
 
-    public List<StudyTask> Load()
+    public IReadOnlyList<StudyTask> ListForOwner(int ownerId)
     {
-        try
-        {
-            string json = File.ReadAllText(filePath);
-            List<StudyTask> tasks = JsonSerializer.Deserialize<List<StudyTask>>(json, jsonOptions)
-                ?? throw new JsonException("Expected a JSON array of tasks.");
-            if (tasks.Any(task => task is null))
-            {
-                throw new JsonException("Every item in the JSON array must be a task.");
-            }
-
-            return tasks;
-        }
-        catch (FileNotFoundException)
-        {
-            return new List<StudyTask>();
-        }
+        return tasks.Where(task => task.OwnerId == ownerId).ToList();
     }
 
-    public void Save(List<StudyTask> tasks)
+    public StudyTask? FindForOwner(int ownerId, int id)
     {
-        string temporaryPath = filePath + ".tmp";
-        File.WriteAllText(temporaryPath, JsonSerializer.Serialize(tasks, jsonOptions));
-        File.Move(temporaryPath, filePath, overwrite: true);
+        return tasks.Find(task => task.OwnerId == ownerId && task.Id == id);
+    }
+
+    public void Add(StudyTask task)
+    {
+        task.Id = tasks.Count == 0 ? 1 : tasks.Max(existingTask => existingTask.Id) + 1;
+        tasks.Add(task);
+        SaveChanges();
+    }
+
+    public void Delete(StudyTask task)
+    {
+        tasks.Remove(task);
+        SaveChanges();
+    }
+
+    public void SaveChanges()
+    {
+        file.Save(tasks);
+    }
+
+    public int ClaimUnownedTasks(int ownerId)
+    {
+        List<StudyTask> unowned = tasks.Where(task => task.OwnerId is null).ToList();
+        if (unowned.Count == 0)
+        {
+            return 0;
+        }
+
+        foreach (StudyTask task in unowned)
+        {
+            task.Claim(ownerId);
+        }
+
+        SaveChanges();
+        return unowned.Count;
     }
 }
