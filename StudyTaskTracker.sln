@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milestone02_OOP", "Mileston
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milestone03_LayeredConsole", "Milestone03_LayeredConsole\Milestone03_LayeredConsole.csproj", "{EEC12B0D-8B13-4598-A50A-5EFD0B73FB4A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milestone04_Database", "Milestone04_Database\Milestone04_Database.csproj", "{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{EEC12B0D-8B13-4598-A50A-5EFD0B73FB4A}.Release|x64.Build.0 = Release|Any CPU
 		{EEC12B0D-8B13-4598-A50A-5EFD0B73FB4A}.Release|x86.ActiveCfg = Release|Any CPU
 		{EEC12B0D-8B13-4598-A50A-5EFD0B73FB4A}.Release|x86.Build.0 = Release|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Debug|x64.Build.0 = Debug|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Debug|x86.Build.0 = Debug|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Release|x64.ActiveCfg = Release|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Release|x64.Build.0 = Release|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Release|x86.ActiveCfg = Release|Any CPU
+		{7A781AD2-B31A-4D16-B4A5-D029BB02C5A8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

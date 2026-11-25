@@ -14,3 +14,5 @@ tasks-layered.json.tmp
 tasks-layered.json.lock
 users-layered.json
 users-layered.json.tmp
+study-task-tracker.db
+study-task-tracker.db-*

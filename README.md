@@ -123,3 +123,44 @@ paths, which depend on the working directory.
 2. Log out, register and log in as `bob`, and list tasks. Try finding, deleting,
    and completing Alice's task by ID. Bob should get “No task found.”
 3. Restart, sign in again as Alice, and find her task by ID.
+
+## Milestone 04 · Database console
+
+The console menus, account rules, and task operations carry over from Milestone
+03. The repositories now use EF Core to read and write SQLite. For example, the
+task repository filters by owner in a LINQ query, which EF Core translates into
+a SQL query against the database.
+
+| Table | What it stores |
+| --- | --- |
+| `Users` | One row per account, identified by its primary key `Id`. A unique index on `NormalizedUsername` prevents duplicate usernames. |
+| `StudyTasks` | One row per task, identified by its primary key `Id`. The required foreign key `OwnerId` references `Users.Id`. |
+
+This is a one-to-many relationship. One user can own any number of tasks, and
+each task must reference one existing user. SQLite enforces that relationship
+and generates the IDs for new rows.
+
+### Run it
+
+With the .NET 10 SDK installed, run these commands from the `StudyTaskTracker`
+folder.
+
+```sh
+cd Milestone04_Database
+dotnet run
+```
+
+In Visual Studio, set `Milestone04_Database` as the startup project and press
+**Ctrl+F5**. The first run creates `study-task-tracker.db` in the working
+directory and prints its path. This milestone starts with its own database.
+Register an account there to try it. Your earlier accounts and tasks are
+available by running Milestone 03.
+
+### Try it
+
+1. Register as `alice`, log in, and add a pending task. Exit and reopen the app.
+2. Log in again to confirm the task is still there. Register a second account to
+   check that it has its own task list.
+3. Open the database in a SQLite client and run the examples in
+   [`queries.sql`](Milestone04_Database/queries.sql). They show filtering by owner,
+   joining users and tasks, and counting tasks per user.
