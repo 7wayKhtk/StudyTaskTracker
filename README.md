@@ -164,3 +164,69 @@ available by running Milestone 03.
 3. Open the database in a SQLite client and run the examples in
    [`queries.sql`](Milestone04_Database/queries.sql). They show filtering by owner,
    joining users and tasks, and counting tasks per user.
+
+## Milestone 05 · ASP.NET Core Web API
+
+Milestone 04 took input from a console menu. Milestone 05 accepts HTTP requests
+through `TasksController`. The controller validates request DTOs, the service
+applies task operations, and the repository uses EF Core to save them. Response
+DTOs return the task fields a client needs.
+
+This version continues to use SQLite and the `Users`–`StudyTasks` relationship.
+It creates its own `study-task-api.db` and seeds one demo user. All requests
+operate on that user's tasks for this local demo. The multi-user login flow
+is available in Milestones 03 and 04.
+
+| Request | Result |
+| --- | --- |
+| `GET /api/tasks` | `200 OK` with the task list |
+| `GET /api/tasks/{id}` | `200 OK` with the task, or `404 Not Found` |
+| `POST /api/tasks` | `201 Created` with the new task and its URL, or `400 Bad Request` |
+| `PUT /api/tasks/{id}` | `204 No Content`, `400 Bad Request`, or `404 Not Found` |
+| `DELETE /api/tasks/{id}` | `204 No Content` or `404 Not Found` |
+
+### Run it
+
+In Visual Studio with the **ASP.NET and web development** workload, open
+`StudyTaskTracker.sln`, set `Milestone05_WebAPI` as the startup project, and
+press **F5**. The launch profile opens Swagger. With the .NET 10 SDK, you can
+also run it from a terminal in the `StudyTaskTracker` folder.
+
+```sh
+cd Milestone05_WebAPI
+dotnet run
+```
+
+Open [Swagger UI](http://localhost:5075/swagger) to try requests in the browser.
+The [OpenAPI document](http://localhost:5075/swagger/v1/swagger.json) describes
+the routes and DTOs in JSON.
+
+### Try it in Swagger
+
+1. Open `POST /api/tasks`, select **Try it out**, and send this JSON.
+
+   ```json
+   {
+     "title": "Finish lab report",
+     "course": "Databases",
+     "dueDate": "2026-12-10"
+   }
+   ```
+
+2. Check that the response is `201` and note the returned `id`. Use that ID in
+   `GET /api/tasks/{id}` to view the task.
+3. Use `PUT /api/tasks/{id}` with the same task fields and
+   `"isCompleted": true`. Expect `204`. Run GET again to check the new status.
+4. Use `DELETE /api/tasks/{id}` and expect `204`. Repeat GET for that ID and
+   expect `404`. Try POST with a blank title or an invalid date and expect `400`.
+
+Titles and course names are required and have limits of 150 and 80 characters.
+Supply `dueDate` as `YYYY-MM-DD`. POST starts the task as pending. PUT replaces
+the editable fields and requires `isCompleted`.
+
+## Submission check
+
+Build the whole solution in Visual Studio with **Ctrl+Shift+B**. Set each
+milestone as the startup project in turn and try the steps in its section above.
+The repository contains all five runnable projects. Submit the solution folder
+or the repository link according to your course's submission instructions.

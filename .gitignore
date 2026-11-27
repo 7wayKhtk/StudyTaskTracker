@@ -4,7 +4,7 @@ bin/
 obj/
 *.user
 
-# Data generated while running the console app
+# Data generated while running the milestones
 tasks.json
 tasks.json.tmp
 tasks-oop.json
@@ -16,3 +16,5 @@ users-layered.json
 users-layered.json.tmp
 study-task-tracker.db
 study-task-tracker.db-*
+study-task-api.db
+study-task-api.db-*
